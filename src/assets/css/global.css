@@ -1,0 +1,73 @@
+html,
+body,
+#app {
+	height: 100%;
+	margin: 0;
+    padding: 0;
+	min-width: 1366px;
+}
+
+.el-breadcrumb {
+	margin-bottom: 15px;
+	font-size: 12px;
+}
+
+.el-card{
+	box-shadow: 0 1px 1px rgb(0,0,0,0.15) !important;
+}
+
+.el-table {
+	margin-top: 15px;
+	font-size: 12px;
+}
+/* 
+.el-cascader-panel {
+	width: 500px;
+	height: 400px;
+} */
+.el-cascader-menu {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+/* 隐藏横向滚动条 */
+.el-scrollbar__wrap{
+  overflow-x: hidden;
+}
+
+.el-pagination{
+	margin-top: 15px;
+	text-align: center;
+}
+
+.el-form-item__label {
+	width: 80px!important;
+}
+.el-form-item__content{
+	margin-left: 80px!important;
+}
+
+.el-scrollbar {
+	padding-bottom: 15px;
+	/* overflow: dis */
+}
+
+
+/* 表格的高亮显示 */
+
+.el-table .warning-row {
+	background: rgb(250, 236, 216);
+}
+
+.el-table .primary-row {
+	background: rgb(225, 243, 216);
+	/* #67c23a */
+}
+
+.el-table .danger-row {
+	background: rgb(253, 226, 226);
+}
+
+.el-table .success-row {
+	background: rgb(179, 216, 255);
+}
+
