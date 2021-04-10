@@ -26,47 +26,70 @@
         </el-col>
 
         <el-col :span="4">
-            <el-select v-model="queryInfo.selectClassId" placeholder="筛选班级" @change="getGradeList" clearable>
+            <el-select v-model="queryInfo.selectClassId" placeholder="筛选班级" @change="getStudentKpiList" clearable>
               <el-option v-for="item in classList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
         </el-col>
 
-        <el-col :span="4">
+        <!-- <el-col :span="4">
             <el-select v-model="queryInfo.selectCourseId" placeholder="筛选课程" @change="getGradeList" clearable>
               <el-option v-for="item in courseList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
-        </el-col>
+        </el-col> -->
 
         <el-col :span="4">
           <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear='getGradeList()'>
-            <el-button slot="append" icon="el-icon-search" @click="getGradeList()"></el-button>
+            <el-button slot="append" icon="el-icon-search" @click="getStudentKpiList()"></el-button>
           </el-input>
-        </el-col>
-        <el-col :span="4">
-          <el-button type="primary" @click='addGrade'>添加成绩</el-button>
         </el-col>
       </el-row>
       <!-- 成绩列表区-->
-      <el-table :data="gradelist" border  :row-class-name="tableRowClassName" @sort-change="sortByScore">
-        <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column label="学生姓名" prop="studentName"></el-table-column>
-        <el-table-column label="学号" prop="studentNum"></el-table-column>
-        <el-table-column label="班级" prop="className"></el-table-column>
-        <el-table-column label="课程名" prop="courseName"></el-table-column>
-        <el-table-column label="分数" prop="score" sortable="custom" ></el-table-column>
-        <el-table-column label="考试时间" prop="testTime"></el-table-column>
+      <el-table :data="studentkpilist" border  stripe :row-class-name="tableRowClassName" @sort-change="sortByScore" @expand-change="expandChange">
+        <el-table-column type="expand" >
+          <!-- <template slot-scope="scope"> -->
+            <el-table :data="courseRankList" border  stripe>
+              <el-table-column type="index" label="#"></el-table-column>
+              <el-table-column label="课程名" prop="courseName"></el-table-column>
+              <el-table-column label="课程分数" prop="score"></el-table-column>
+              <el-table-column label="班级排名" prop="classRank"></el-table-column>
+              <el-table-column label="专业排名" prop="proRank"></el-table-column>
+              <el-table-column label="学院排名" prop="colRank"></el-table-column>
+            </el-table>
+          <!-- </template> -->
 
-        <el-table-column label="操作" width="180px">
-          <template slot-scope='scope'>
-            <!-- 修改按钮slot-scope='scope'-->
-            <el-button type="primary" icon="el-icon-edit" size='mini' @click="showEditDialog(scope.row.id)"></el-button>
-            <!-- 删除按钮 -->
-            <el-button type="danger" icon="el-icon-delete" size='mini' @click="removeGradeById(scope.row.id)">
-            </el-button>
-          </template>
+          </el-table-column>
+
+
+
+
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column label="学生姓名" prop="name"></el-table-column>
+        <el-table-column label="学号" prop="number"></el-table-column>
+
+        <el-table-column label="数据结构和算法" prop="class1Score" ></el-table-column>
+        <el-table-column label="c++语言" prop="class2Score" ></el-table-column>
+        <el-table-column label="操作系统" prop="class3Score" ></el-table-column>
+        <el-table-column label="数据库和网络服务" prop="class4Score" ></el-table-column>
+        <el-table-column label="计算机网络" prop="class5Score" ></el-table-column>
+        <el-table-column label="Java语言" prop="class6Score" ></el-table-column>
+        <el-table-column label="最低分" prop="minScore"></el-table-column>
+        <el-table-column label="最高分" prop="maxScore"></el-table-column>
+        <el-table-column label="平均分" prop="avgScore"></el-table-column>
+
+        <el-table-column  label="均分排名" >
+          <el-table-column label="班排名" prop="classAvgScoreRank"></el-table-column>
+          <el-table-column label="专业排名" prop="proAvgScoreRank"></el-table-column>
+          <el-table-column label="学院排名" prop="colAvgScoreRank"></el-table-column>
         </el-table-column>
+        <el-table-column label="总分" prop="sumScore"></el-table-column>
+        <el-table-column  label="总分排名" style="text-align: center;">
+          <el-table-column label="班排名" prop="classSumScoreRank"></el-table-column>
+          <el-table-column label="专业排名" prop="proSumScoreRank"></el-table-column>
+          <el-table-column label="学院排名" prop="colSumScoreRank"></el-table-column>
+        </el-table-column>
+
       </el-table>
 
       <!-- 分页区域 -->
@@ -77,84 +100,6 @@
         </el-pagination>
       </div>
     </el-card>
-
-    <!-- 添加成绩的对话框-->
-    <el-dialog title="添加成绩" :visible.sync="addDialogVisible" width="50%" @close='addDialogClosed'>
-      <!-- 内容主体区域-->
-      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px" class="demo-ruleForm">
-        <el-form-item label="学号" prop="studentNum">
-          <el-autocomplete v-model="addForm.studentNum" :fetch-suggestions="queryStuByNum" placeholder="请输入内容"
-            :trigger-on-focus="false" @select="handleSelect"></el-autocomplete>
-        </el-form-item>
-        <el-form-item label="学生名" prop="studentName">
-          <el-autocomplete v-model="addForm.studentName" :fetch-suggestions="queryStuByName" placeholder="请输入内容"
-            :trigger-on-focus="false" @select="handleSelect"></el-autocomplete>
-        </el-form-item>
-        <el-form-item label="所属学院" prop="collegeId">
-          <el-select v-model="addForm.collegeId" placeholder="请选择" @change="setProfession(addForm.collegeId)">
-            <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属专业" prop="professionalId">
-          <el-select v-model="addForm.professionalId" placeholder="请选择" @change="setClass(addForm.professionalId)">
-            <el-option v-for="item in professionalList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属班级" prop="classId">
-          <el-select v-model="addForm.classId" placeholder="请选择">
-            <el-option v-for="item in classList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="课程" prop="courseId">
-          <el-select v-model="addForm.courseId" placeholder="请选择">
-            <el-option v-for="item in courseList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="考试时间">
-          <el-date-picker v-model="addForm.testTime" type="date" placeholder="选择日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="成绩" prop="score">
-          <el-input v-model="addForm.score"></el-input>
-        </el-form-item>
-      </el-form>
-      <!--  底部区域 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addGra">确 定</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- 修改用户的对话框 -->
-    <el-dialog title="修改成绩" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-        <el-form-item label="学生名">
-          <el-input v-model="editForm.studentName" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="学号">
-          <el-input v-model="editForm.studentNum" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="课程" prop="courseId">
-          <el-select v-model="editForm.courseId" placehcolder="请选择">
-            <el-option v-for="item in courseList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="成绩" prop="score">
-          <el-input v-model="editForm.score"></el-input>
-        </el-form-item>
-
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editStuInfo">确 定</el-button>
-      </span>
-    </el-dialog>
 
   </div>
 
@@ -186,7 +131,7 @@
           selectCourseId: ""
 
         },
-        gradelist: [],
+        studentkpilist: [],
         total: 0,
         // 控制添加用户对话框的显示与隐藏
         addDialogVisible: false,
@@ -204,77 +149,12 @@
           //成绩
           grade: ''
         },
-        // 添加表单的验证规则对象
-        addFormRules: {
-          studentName: [{
-            required: true,
-            message: '请输入学生名',
-            trigger: 'blur'
-          }],
-          studentNum: [{
-            required: true,
-            message: '请输入学号',
-            trigger: 'blur'
-          }],
-          collegeId: [{
-            required: true,
-            message: '请选择学院',
-            trigger: 'blur'
-          }],
-          professionalId: [{
-            required: true,
-            message: '请选择专业',
-            trigger: 'blur'
-          }],
-          classId: [{
-            required: true,
-            message: '请选择班级',
-            trigger: 'blur'
-          }],
-          score: [{
-            required: true,
-            message: '请添入成绩',
-            trigger: 'blur'
-          }],
-          courseId: [{
-            required: true,
-            message: '请选择课程',
-            trigger: 'blur'
-          }]
-
-        },
-        //控制修改用户对话框的显示与隐藏
-        editDialogVisible: false,
-        //查询到的用户信息对象
-        editForm: {},
-        //修改表单的验证规则对象
-        editFormRules: {
-          courseId: [{
-            required: true,
-            message: '请选择课程',
-            trigger: 'blur'
-          }],
-          score: [{
-            required: true,
-            message: '请填入成绩',
-            trigger: 'blur'
-          }]
-        },
-        //控制分配角色对话框的显示与隐藏
-        setRightDialogVisible: false,
-        //需要被分配角色的用户信息
-        teacherInfo: {},
-        //所有角色的数据列表
-        rolesList: [],
-        //已选中的角色下拉 Id 值
-        selectRoleId: '',
         //所有学院的数据列表
         collegeList: [],
         //所有专业的数据列表
         professionalList: [],
         //所有班级的数据列表
         classList: [],
-
         //学生的列表，以number为value
         studentListBynum: [],
         //学生的列表，以name为value
@@ -287,30 +167,33 @@
         //最上方的专业选择框
         selectProId: "",
         //最上方的班级选择框
-        selectClassId: ""
+        selectClassId: "",
+        //课程排名列表
+        courseRankList:[]
+
 
       }
     },
     created() {
-      this.getGradeList()
-      this.getStudentListBynum()
-      this.getStudentListByname()
-      this.setCollege()
-      this.setProfession()
-      this.setClass()
-      this.setCourse()
+      this.getStudentKpiList()
+      // this.getStudentListBynum()
+      // this.getStudentListByname()
+       this.setCollege()
+       this.setProfession()
+       this.setClass()
+       //this.setCourse()
     },
     methods: {
-      async getGradeList() {
+      async getStudentKpiList() {
         const {
           data: res
-        } = await this.$http.get('grades', {
+        } = await this.$http.get('gradeKpi/studentKpi', {
           params: this.queryInfo
         })
         if (res.meta.status !== 200) {
-          return this.$message.error("获取成绩列表失败！")
+          return this.$message.error("获取学生kpi列表失败！")
         }
-        this.gradelist = res.data.grades
+        this.studentkpilist = res.data.studentKpis
         this.total = res.data.total
         //console.log(res)
       },
@@ -318,14 +201,14 @@
       handleSizeChange(newSize) {
         // console.log(newSize)
         this.queryInfo.pagesize = newSize
-        this.getGradeList()
+        this.getStudentKpiList()
       },
       //监听 页码值 改变的事件
       handleCurrentChange(newPage) {
         // console.log(newPage)
         this.queryInfo.pagenum = newPage
 
-        this.getGradeList()
+        this.getStudentKpiList()
       },
 
       // async getGradeListByAscScore() {
@@ -335,15 +218,6 @@
 
       // }
 
-      //弹出添加成绩对话框
-      addGrade() {
-        // this.setCollege()
-        // this.setProfession()
-        // this.setClass()
-        // this.setCourse()
-        //展示添加成绩的对话框
-        this.addDialogVisible = true;
-      },
       //设置学院
       async setCollege() {
         //在展示对话框之前，获取所有学院列表
@@ -401,96 +275,7 @@
         //赋值给班级列表
         this.courseList = res.data;
       },
-      //监听添加成绩对话框的关闭事件
-      addDialogClosed() {
-        this.$refs.addFormRef.resetFields()
-      },
-      //点击按钮，添加新成绩
-      addGra() {
-        this.$refs.addFormRef.validate(async valid => {
-          if (!valid) return
-          //可以发起添加的网络请求
-          const {
-            data: res
-          } = await this.$http.post('grades', this.addForm)
-          if (res.meta.status !== 201) {
-            this.$message.error('添加成绩失败！')
-          }
-          this.$message.success('添加成绩成功！')
-          //隐藏添加成绩的对话框
-          this.addDialogVisible = false
-          //重新获取成绩列表数据
-          this.getGradeList()
-        })
-      },
-      //展示编辑成绩的对话框
-      async showEditDialog(id) {
 
-        this.setCourse()
-        // 根据id获取学生内容
-        const {
-          data: res
-        } = await this.$http.get('grades/' + id)
-        if (res.meta.status !== 200) {
-          return this.$message.error('查询成绩信息失败！')
-        }
-        this.editForm = res.data
-
-        this.editDialogVisible = true;
-        //console.log(res.data)
-      },
-      //监听修改成绩对话框的关闭事件
-      editDialogClosed() {
-        this.$refs.editFormRef.resetFields()
-      },
-      //修改成绩信息并提交
-      editStuInfo() {
-        this.$refs.editFormRef.validate(async valid => {
-          if (!valid) return
-          //发起修改成绩信息的数据请求
-          const {
-            data: res
-          } = await this.$http.put('grades/' + this.editForm.id, {
-            courseId: this.editForm.courseId,
-            score: this.editForm.score
-          })
-          if (res.meta.status !== 200) {
-            return this.$message.error('更新成绩信息失败！')
-          }
-
-          //关闭对话框
-          this.editDialogVisible = false
-          //刷新数据列表
-          this.getGradeList()
-          //提示修改成功
-          this.$message.success('更新成绩信息成功！')
-
-        })
-      },
-      //根据ID删除对应的成绩信息
-      async removeGradeById(id) {
-        const confirmResult = await this.$confirm('此操作将永久删除该成绩, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).catch(err => err)
-        //如果用户取消删除，则返回值为字符串 cancel
-        //如果用户确认删除，则返回值为字符串 confirm
-        if (confirmResult !== 'confirm') {
-          return this.$message.info('已取消删除')
-        }
-
-        const {
-          data: res
-        } = await this.$http.delete('grades/' + id)
-
-        if (res.meta.status !== 200) {
-          return this.$message.error('删除成绩失败！')
-        }
-
-        this.$message.success('删除成绩成功！')
-        this.getGradeList();
-      },
 
       //获取所有的学生列表 with number
       async getStudentListBynum() {
@@ -574,20 +359,39 @@
         //order 排序方法 descending 降序  ascending 升序
          this.queryInfo.prop = prop
          this.queryInfo.order = order;
-         this.getGradeList()
+         this.getStudentKpiList()
       },
 
       //最上方筛选学院变化后
       changeCol(selectColId) {
         this.setProfession(selectColId)
-        this.getGradeList()
+        this.getStudentKpiList()
       },
       //最上方筛选专业变化后
       changePro(selectProId) {
         this.setClass(selectProId)
-        this.getGradeList()
+        this.getStudentKpiList()
       },
 
+      async expandChange(row, expandedRows){
+        if(expandedRows.length > 0){
+          const {
+            data: res,
+          } = await this.$http.get('gradeKpi/gradeOneRank/'+ row.id)
+          if (res.meta.status !== 200) {
+            return this.$message.error('获取学生各科排名失败')
+          }
+          // this.studentkpilist.forEach((temp, index) => {
+          //   // 找到当前点击的行，把动态获取到的数据赋值进去
+          //   if (temp.id === row.id) {
+              // this.$set(this.$data,"courseRankList",res.data)
+            // }
+          // });
+           this.courseRankList = res.data
+
+        }
+
+      }
 
     }
   }

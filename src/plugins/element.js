@@ -32,7 +32,9 @@ import {
   Cascader,
   DatePicker,
   Autocomplete,
-  
+  TabPane,
+  Tabs
+
 } from 'element-ui'
 
 
@@ -67,5 +69,7 @@ Vue.use(Option)
 Vue.use(Cascader)
 Vue.use(DatePicker)
 Vue.use(Autocomplete)
+Vue.use(TabPane)
+Vue.use(Tabs)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

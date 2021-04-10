@@ -130,7 +130,7 @@
       </span>
     </el-dialog>
 
-    <!-- 修改用户的对话框 -->
+    <!-- 修改成绩的对话框 -->
     <el-dialog title="修改成绩" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
         <el-form-item label="学生名">
@@ -182,8 +182,10 @@
           selectProId: "",
           //最上方的班级选择框
           selectClassId: "",
-          //最上方的班级选择框
-          selectCourseId: ""
+          //最上方的课程选择框
+          selectCourseId: "",
+          //老师id
+          teaId:""
 
         },
         gradelist: [],
@@ -292,6 +294,8 @@
       }
     },
     created() {
+
+      this.queryInfo.teaId = window.sessionStorage.getItem("id")
       this.getGradeList()
       this.getStudentListBynum()
       this.getStudentListByname()
@@ -394,7 +398,12 @@
       async setCourse() {
         const {
           data: res,
-        } = await this.$http.get('courses/all')
+        } = await this.$http.get('courses/all',{
+          params: {
+            teaId:  window.sessionStorage.getItem("id")
+          }
+          
+        })
         if (res.meta.status !== 200) {
           return this.$message.error('获取课程列表失败')
         }

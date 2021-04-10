@@ -126,23 +126,7 @@
     </el-dialog>
 
 
-    <!-- 分配角色的对话框-->
-    <el-dialog title="分配角色" :visible.sync="setRightDialogVisible" width="50%" @close="setRoleDialogClosed">
-      <div>
-        <p>当前的用户：{{userInfo.username}}</p>
-        <p>当前的角色：{{userInfo.roleName}}</p>
-        <p>分配新角色：
-          <el-select v-model="selectRoleId" placeholder="请选择">
-            <el-option v-for="item in rolesList" :key="item.id" :label="item.roleName" :value="item.id">
-            </el-option>
-          </el-select>
-        </p>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
-      </span>
-    </el-dialog>
+    
 
   </div>
 

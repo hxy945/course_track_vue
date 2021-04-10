@@ -55,7 +55,16 @@ export default {
                 type:'success'
               })
               window.sessionStorage.setItem('token',res.data.token)
-              this.$router.push('/home')
+              window.sessionStorage.setItem('username',this.loginForm.username)
+              window.sessionStorage.setItem('id',res.data.id)
+              if(this.loginForm.username === "admin") {
+                this.$router.push('/home')
+              }else if(this.loginForm.username.indexOf("T") === 0) {
+                this.$router.push('/loginTeacher')
+              }else {
+                this.$router.push('/loginStudent')
+              }
+
             }else{
               this.$message({
                 message:res.meta.msg,

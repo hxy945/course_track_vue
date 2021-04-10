@@ -14,6 +14,13 @@ import Class from '../components/class/Class.vue'
 import Course from '../components/course/Course.vue'
 import Grade from '../components/grade/Grade.vue'
 import Analyse from '../components/grade/Analyse.vue'
+import Chart from '../components/grade/Chart.vue'
+import Distribute from '../components/grade/Distribute.vue'
+import StudentLogin from '../components/StudentLogin.vue'
+import TeacherLogin from '../components/TeacherLogin.vue'
+import StudentAlone from '../components/grade/StudentAlone.vue'
+import TeacherAlone from '../components/grade/TeacherAlone.vue'
+import TeacherAloneChart from '../components/grade/TeacherAloneChart.vue'
 
 Vue.use(VueRouter)
 
@@ -29,6 +36,26 @@ const router = new VueRouter({
     {
       path: '/login',
       component: Login
+    },
+    {
+      path: '/loginStudent',
+      component: StudentLogin,
+      children: [{
+        path: '/studentAlone',
+        component: StudentAlone
+      }]
+    },
+    {
+      path: '/loginTeacher',
+      component: TeacherLogin,
+      children: [{
+        path: '/teacherAlone',
+        component: TeacherAlone
+      },{
+        path: '/teacherAloneChart',
+        component: TeacherAloneChart
+      }
+      ]
     },
     {
       path: '/home',
@@ -82,7 +109,15 @@ const router = new VueRouter({
         {
           path: '/analysis',
           component: Analyse
-        }
+        },
+        {
+          path: '/charts',
+          component: Chart
+        },
+        // {
+        //   path: '/distributes',
+        //   component: Distribute
+        // }
       ]
     },
   ]
